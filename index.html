@@ -1,0 +1,124 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>twitch.tv channel selector</title>
+	<!-- Latest compiled and minified CSS -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+	<link href='style.css' rel='stylesheet'>
+
+</head>
+<body>
+	<script>
+
+		$(document).ready(function() {
+			twitchtv();
+			allTwitch();
+			onlineTwitch();
+			offlineTwitch();
+			inactiveTwitch();
+		});
+		
+		// Create a sublist of urls called input2 of valid streams - eliminate '404' streams
+		function twitchtv(){
+			var input=["comster404", "ESL_SC2", "freecodecamp", "cretetion", "OgamingSC2", "storbeck", "habathcx", "RobotCaleb", "noobs2ninjas", "brunofin" ];
+			var outstring = "";
+			$("#result").empty();
+			for(var x=0;x<input.length;x++){
+				$.getJSON('https://wind-bow.gomix.me/twitch-api/channels/' + encodeURIComponent(input[x]) + '?callback=?', function(data) {
+					//console.log(data)
+					if (data.error == "Not Found"){ //Using channels api check list for 404 channels
+						outstring = '';// clear the string
+						outstring = "<div class='inactive'>";
+						outstring += '<img src="images/404.jpg">';
+						outstring += '<h4>ERROR - ' + data.message + '</h4></div>';
+						$("#result").append(outstring);
+					} else {
+						$.getJSON('https://wind-bow.gomix.me/twitch-api/streams/' + data.display_name + '?callback=?', function(data2) { // using stream api determine which channels are online
+							//console.log(data2);
+							if (data2.stream != null){
+								outstring = '';// clear the string
+								outstring = "<div class='online'>";
+								outstring += '<img src="' + data.logo +'">';
+								outstring += '<a href="' + data.url + '" target="_blank"><h4>' + data.display_name + ' is ONLINE</h4><h5>STATUS: ' + data2.stream.channel.status + "</h5></a>";
+								outstring += '</div>';
+								$("#result").append(outstring);
+							} else if (data2.stream == null){ // and which channels are offline
+								outstring = ''; // clear the string
+								outstring = "<div class='offline'>";
+								outstring += '<img src="' + data.logo +'">';
+								outstring += '<a href="' + data.url + '" target="_blank"><h4>' + data.display_name +' is OFFLINE</h4><h5>STATUS: ' + data.status + '</h5>';
+								outstring += "</div>";
+								$("#result").append(outstring);
+							};
+						});
+					};
+				});
+			}
+		}
+
+		function allTwitch() {
+			$("#all").click(function() {
+				$(".online").show("slow");
+				$(".offline").show("slow");
+				$(".inactive").show("slow");
+			});
+		}
+
+		function onlineTwitch() {
+			$("#online").click(function() {
+				$(".online").show("slow");
+				$(".offline").hide("slow");
+				$(".inactive").hide("slow");
+			});
+		}
+
+		function offlineTwitch() {
+			$("#offline").click(function() {
+				$(".online").hide("slow");
+				$(".offline").show("slow");
+				$(".inactive").hide("slow");
+			});
+		}
+		function inactiveTwitch() {
+			$("#inactive").click(function() {
+				$(".online").hide("slow");
+				$(".offline").hide("slow");
+				$(".inactive").show("slow");
+			});
+		}
+
+	</script>
+
+	<div class="container-fluid">
+
+		<div class="row text-center">
+			<h1>twitch.tv channel selector</h1>
+		</div>
+		<div class="row text-center">
+			<div class="buttons">
+				<button id="online">Online</button>
+				<button id="offline">Offline</button>
+				<button id="inactive">Inactive</button>
+				<button id="all">All</button>
+			</div>
+		</div>
+		<div class="row text-center">
+			<div class="col-md-3"></div>
+			<div class="col-md-6" id="result"></div>
+			<div class="col-md-3"></div>
+		</div>
+		<div class="row text-center">
+			<h6 style="color:#ccc;">15medium</h6>
+		</div>
+
+	</div>
+</body>
+</html>
