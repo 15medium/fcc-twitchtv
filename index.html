@@ -34,10 +34,14 @@
 			for(var x=0;x<input.length;x++){
 				$.getJSON('https://wind-bow.gomix.me/twitch-api/channels/' + encodeURIComponent(input[x]) + '?callback=?', function(data) {
 					//console.log(data)
+					if (data.logo == null){
+					data.logo = 'images/404.jpg';
+					}
+
 					if (data.error == "Not Found"){ //Using channels api check list for 404 channels
 						outstring = '';// clear the string
 						outstring = "<div class='inactive'>";
-						outstring += '<img src="images/404.jpg">';
+						outstring += '<img src="' + data.logo +'">';
 						outstring += '<h4>ERROR - ' + data.message + '</h4></div>';
 						$("#result").append(outstring);
 					} else {
@@ -116,7 +120,7 @@
 			<div class="col-md-3"></div>
 		</div>
 		<div class="row text-center">
-			<h6 style="color:#ccc;">15medium</h6>
+			<a href="http://15medium.com/fcc/fcc-portfolio"><h6 style="color:#ccc;">15medium</h6></a>
 		</div>
 
 	</div>
